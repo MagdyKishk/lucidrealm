@@ -18,22 +18,22 @@ export default async (req: AuthedRequest, res: Response, next: NextFunction) => 
     try {
         const decoded = jwt.decode(token) as JwtPayload;
         if (decoded == null) {
-        res.status(403).json({
-            success: false,
-            message: "Unaothorized: Invalid or expired token"
-        })
-        return
+            res.status(403).json({
+                success: false,
+                message: "Unaothorized: Invalid or expired token"
+            })
+            return
         }
         const targetUser = await User.findById(decoded.id)
         if (!targetUser) {
-        res.status(403).json({
-            success: false,
-            message: "Unaothorized: Invalid or expired token"
-        })
-        return
+            res.status(403).json({
+                success: false,
+                message: "Unaothorized: Invalid or expired token"
+            })
+            return
         }
 
-        req.user = targetUser.toObject();
+        req.user = targetUser;
         next()
     } catch (error: any) {
         res.status(500).json({
