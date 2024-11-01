@@ -32,72 +32,93 @@ export default async (req: Request, res: Response) => {
     const errors = validateRequest(email, password);
     if (errors.length > 0) {
         Logger.warn(`Login validation failed for email: ${email}`);
-        res.status(422).json({ success: false, message: errors.join(" "), code: 'INVALID_REQUEST' });
+        res.status(422).json({
+            success: false,
+            message: errors.join(" "),
+        });
         return;
     }
 
     try {
-        // Check if email exists
+        // Check if email exists and get associated user
         const existingEmail = await Email.findOne({ address: email });
         if (!existingEmail) {
             Logger.warn(`Login failed: Email not found - ${email}`);
             res.status(401).json({
                 success: false,
                 message: "Invalid email or password",
-                code: 'INVALID_CREDENTIALS'
             });
             return;
         }
 
-        // Fetch the user and validate the existence
+        // Fetch the user and validate existence
         const targetUser = await User.findById(existingEmail.userId);
         if (!targetUser) {
+            Logger.warn(`Login failed: User not found for email - ${email}`);
             res.status(401).json({
                 success: false,
                 message: "Invalid email or password",
-                code: 'INVALID_CREDENTIALS'
             });
             return;
         }
 
-        // Get the user's current password and verify it
-        const targetPassword = await Password.findById(targetUser.passwords.current);
-        if (!targetPassword) {
-            res.status(401).json({
+        // Get current password
+        const currentPassword = await Password.findById(targetUser.passwords.current);
+        if (!currentPassword) {
+            Logger.error(`Critical: User ${targetUser._id} has no current password`);
+            res.status(500).json({
                 success: false,
-                message: "Invalid email or password",
-                code: 'INVALID_CREDENTIALS'
+                message: "Internal server error",
             });
             return;
         }
 
-        // Vlidate the password
-        const isValidPassword = await bcryptjs.compare(password, targetPassword.hash);
-        if (!isValidPassword) {
-            res.status(401).json({
-                success: false,
-                message: "Invalid email or password",
-                code: 'INVALID_CREDENTIALS'
+        // First check if the provided password matches current password
+        const isCurrentPassword = await bcryptjs.compare(password, currentPassword.hash);
+        if (isCurrentPassword) {
+            // Generate JWT token and send success response
+            const token = AuthService.signUser(targetUser.toObject());
+            
+            res.status(200).json({
+                success: true,
+                message: "User logged in successfully.",
+                user: {
+                    ...targetUser.toObject(),
+                    passwords: undefined,
+                    emails: undefined
+                },
+                token
             });
+
+            Logger.info(`User successfully logged in: ${email}`);
             return;
         }
 
-        // Generate JWT token
-        const token = AuthService.signUser(targetUser.toObject())
-
-        // Successful login response
-        res.status(200).json({
-            success: true,
-            message: "User logged in successfully.",
-            user: {
-                ...targetUser.toObject(),
-                passwords: undefined,
-                emails: undefined
-            },
-            token
+        // If current password didn't match, check password history
+        const passwordHistory = await Password.find({ 
+            _id: { $in: targetUser.passwords.history }
         });
 
-        Logger.info(`User successfully logged in: ${email}`);
+        // Check if password matches any historical password
+        for (const historyPassword of passwordHistory) {
+            const isOldPassword = await bcryptjs.compare(password, historyPassword.hash);
+            if (isOldPassword) {
+                Logger.warn(`Login failed: User attempted to use old password - ${email}`);
+                res.status(401).json({
+                    success: false,
+                    message: `This password was changed on ${currentPassword.createdAt.toLocaleDateString()}. Please use your current password.`,
+                });
+                return;
+            }
+        }
+
+        // If we get here, password doesn't match current or historical passwords
+        Logger.warn(`Login failed: Invalid password for email - ${email}`);
+        res.status(401).json({
+            success: false,
+            message: "Invalid email or password",
+        });
+
     } catch (error: unknown) {
         Logger.error('Login error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';

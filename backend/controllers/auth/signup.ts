@@ -44,7 +44,6 @@ export default async (req: Request, res: Response) => {
             res.status(409).json({
                 success: false,
                 message: "An account with this email address already exists.",
-                code: 'EMAIL_EXISTS'
             });
             return;
         }

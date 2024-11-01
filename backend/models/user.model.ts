@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import { Password, Email } from '.';
 import { userTypes } from '@b/types';
+import Dream from './dream.mode';
 
 
 const userSchema = new Schema<userTypes.UserDocument>({
@@ -51,6 +52,7 @@ userSchema.post<userTypes.UserDocument>("findOneAndDelete", async function (doc:
 
     const emails = doc.emails;
     const passwords = doc.passwords.history;
+    const dreams = doc.dreams;
 
     // Delete emails
     const emailDeletion = Email.deleteMany({ _id: { $in: emails } });
@@ -58,8 +60,11 @@ userSchema.post<userTypes.UserDocument>("findOneAndDelete", async function (doc:
     // Delete passwords
     const passwordDeletion = Password.deleteMany({ _id: { $in: passwords } });
 
+    // Delete dreams
+    const dreamDeletion = Dream.deleteMany({ _id: { $in: dreams } });
+
     // Awaiting Both Operations
-    await Promise.all([emailDeletion, passwordDeletion]);
+    await Promise.all([emailDeletion, passwordDeletion, dreamDeletion]);
 });
 
 const User = mongoose.model<userTypes.UserDocument, userTypes.UserModel>('User', userSchema);

@@ -63,11 +63,10 @@ export default async (req: AuthedRequest, res: Response): Promise<void> => {
         });
     } catch (error: unknown) {
         console.error('Add email error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         res.status(500).json({
             success: false,
             message: "Failed to add email address",
-            error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+            error: process.env.NODE_ENV === 'development' ? error : undefined
         });
     }
 };

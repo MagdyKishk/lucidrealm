@@ -1,8 +1,7 @@
-import { User } from "@b/models"
-import Dream from "@b/models/dream.mode"
+import dreamService from "@b/services/dream"
 import { AuthedRequest } from "@b/types/auth.types"
-import { Request, Response } from "express"
 import Logger from '@b/utils/logger'
+import { Response } from "express"
 
 function validate(title: string, description: string, content: string) {
     const errors: string[] = []
@@ -14,7 +13,7 @@ function validate(title: string, description: string, content: string) {
     return errors
 }
 
-export default async function Create(req: AuthedRequest, res: Response) {
+export default async function createDream(req: AuthedRequest, res: Response) {
     const { title, description, content } = req.body;
     const currentUser = req.user;
     const errors = validate(title, description, content)
@@ -24,20 +23,12 @@ export default async function Create(req: AuthedRequest, res: Response) {
         res.status(400).json({
             success: false,
             message: errors.join(" "),
-            code: 'INVALID_REQUEST'
         })
         return
     }
 
     try {
-        const dream = new Dream({
-            title,
-            description,
-            content,
-            userId: currentUser.id
-        })
-
-        await dream.save()
+        const dream = await dreamService.create(title, description, content, currentUser.id)
 
         currentUser.dreams.push(dream._id);
         await currentUser.save()
@@ -46,7 +37,6 @@ export default async function Create(req: AuthedRequest, res: Response) {
         res.status(201).json({
             success: true,
             message: "Dream created successfully",
-            code: 'DREAM_CREATED',
             dream
         })
     } catch (error) {
@@ -54,7 +44,7 @@ export default async function Create(req: AuthedRequest, res: Response) {
         res.status(500).json({
             success: false,
             message: "Failed to create dream",
-            code: 'INTERNAL_ERROR'
+            error: process.env.NODE_ENV === 'development' ? error : undefined
         })
     }
 }

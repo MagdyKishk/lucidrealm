@@ -6,21 +6,21 @@ const DreamRouter = express.Router()
 
 // @ts-expect-error - TODO: Fix onlyAuthed
 //@route POST /dream/create - Create a dream
-DreamRouter.post("/create", onlyAuthed, dreamController.create);
+DreamRouter.post("/create", onlyAuthed, dreamController.createDream);
 
-//@route POST /dream/delete - Delete a dream
-// DreamRouter.post("/delete", onlyAuthed, dreamController.delete);
+// @ts-expect-error - TODO: Fix onlyAuthed
+// @route POST /dream/delete - Delete a dream
+DreamRouter.post("/delete", onlyAuthed, dreamController.deleteDream);
 
-//@route POST /dream/update - Update a dream
-// DreamRouter.post("/update", onlyAuthed, dreamController.update);
+// @route POST /dream/update/:dreamId - Update a dream
+// DreamRouter.post("/update/:dreamId", onlyAuthed, dreamController.update);
 
-//@route POST /dream/get - Get a dream
-// DreamRouter.post("/get", onlyAuthed, dreamController.get);
+// @ts-expect-error - TODO: Fix onlyAuthed
+// @route POST /dream/get/:dreamId - Get a dream
+DreamRouter.post("/get/:dreamId", onlyAuthed, dreamController.getDream);
 
-//@route POST /dream/get-all - Get all dreams
-// DreamRouter.post("/get-all", onlyAuthed, dreamController.getAll);
-
-//@route POST /dream/get-all-by-user - Get all dreams by user
-// DreamRouter.post("/get-all-by-user", onlyAuthed, dreamController.getAllByUser);
+// @ts-expect-error - TODO: Fix onlyAuthed
+// @route POST /dream/get-all-by-user/:userId - Get all dreams by user
+DreamRouter.post("/get-all-by-user/:userId", onlyAuthed, dreamController.getAllByUser);
 
 export default DreamRouter;

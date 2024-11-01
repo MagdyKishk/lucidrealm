@@ -1,5 +1,6 @@
 import mongoose, { Schema, model } from "mongoose";
 import { DreamDocument } from "../types/dream.types";
+import User from "./user.model";
 
 const DreamSchema = new Schema({
     title: { 
@@ -24,6 +25,12 @@ const DreamSchema = new Schema({
         required: true 
     },
 }, { timestamps: true })
+
+DreamSchema.pre('deleteOne', async function(next) {
+    const dream = this as unknown as DreamDocument;
+    await User.updateOne({ _id: dream.userId }, { $pull: { dreams: dream._id } });
+    next();
+});
 
 const Dream = model<DreamDocument>('Dream', DreamSchema)
 

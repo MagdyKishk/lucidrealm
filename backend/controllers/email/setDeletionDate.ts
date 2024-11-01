@@ -11,7 +11,6 @@ export default async (req: AuthedRequest, res: Response) => {
         res.status(422).json({
             success: false,
             message: "Please provide an email ID",
-            code: 'MISSING_EMAIL_ID'
         });
         return;
     }
@@ -20,7 +19,6 @@ export default async (req: AuthedRequest, res: Response) => {
         res.status(422).json({
             success: false,
             message: "You must have at least one email",
-            code: 'MIN_EMAILS'
         });
         return;
     }
@@ -35,7 +33,6 @@ export default async (req: AuthedRequest, res: Response) => {
             res.status(404).json({
                 success: false,
                 message: "Email not found",
-                code: 'EMAIL_NOT_FOUND'
             });
             return;
         }
@@ -48,15 +45,13 @@ export default async (req: AuthedRequest, res: Response) => {
         res.status(200).json({
             success: true,
             message: "Deletion date set successfully",
-            deletionDate: targetEmail.deletionDate
         });
-    } catch (error: unknown) {
+    } catch (error) {
         Logger.error('Set deletion date error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         res.status(500).json({
             success: false,
             message: "Failed to set deletion date",
-            error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+            error: process.env.NODE_ENV === 'development' ? error : undefined
         });
     }
 }; 

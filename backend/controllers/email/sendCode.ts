@@ -13,7 +13,6 @@ export default async (req: AuthedRequest, res: Response) => {
         res.status(422).json({
             success: false,
             message: "Please provide an email address",
-            code: 'MISSING_EMAIL'
         });
         return;
     }
@@ -36,7 +35,6 @@ export default async (req: AuthedRequest, res: Response) => {
             res.status(404).json({
                 success: false,
                 message: "Email address not found in your account",
-                code: 'EMAIL_NOT_FOUND'
             });
             return;
         }
@@ -45,7 +43,6 @@ export default async (req: AuthedRequest, res: Response) => {
             res.status(409).json({
                 success: false,
                 message: "This email address is already verified",
-                code: 'EMAIL_ALREADY_VERIFIED'
             });
             return;
         }
@@ -61,13 +58,12 @@ export default async (req: AuthedRequest, res: Response) => {
         });
 
         Logger.info(`Verification code sent to: ${email}`);
-    } catch (error: unknown) {
+    } catch (error) {
         Logger.error('Send verification code error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         res.status(500).json({
             success: false,
             message: "Failed to send verification code",
-            error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+            error: process.env.NODE_ENV === 'development' ? error : undefined
         });
     }
 }

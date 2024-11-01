@@ -13,7 +13,6 @@ export default async (req: AuthedRequest, res: Response) => {
         res.status(422).json({
             success: false,
             message: "Please provide a verification code",
-            code: 'MISSING_CODE'
         });
         return;
     }
@@ -30,7 +29,6 @@ export default async (req: AuthedRequest, res: Response) => {
             res.status(404).json({
                 success: false,
                 message: "Invalid or expired verification code",
-                code: 'INVALID_CODE'
             });
             return;
         }
@@ -47,13 +45,12 @@ export default async (req: AuthedRequest, res: Response) => {
             message: "Email Verified Successfully"
         });
         return;
-    } catch (error: unknown) {
+    } catch (error) {
         Logger.error('Email verification error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         res.status(500).json({
             success: false,
             message: "Failed to verify email address",
-            error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+            error: process.env.NODE_ENV === 'development' ? error : undefined
         });
     }
 }
