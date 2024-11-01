@@ -1,6 +1,6 @@
 import express from "express"
 import { dreamController } from '../controllers';
-import { onlyAuthed } from "@b/middleware/auth";
+import { onlyAuthed } from '../middleware/auth';
 
 const DreamRouter = express.Router()
 

@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import { Email } from '@b/models';
-import Logger from '@b/utils/logger';
+import { Email } from '../models';
+import Logger from '../utils/logger';
 
 cron.schedule('0 0 * * *', async () => {
     Logger.info('Running cron job to delete emails');

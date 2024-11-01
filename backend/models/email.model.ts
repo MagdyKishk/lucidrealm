@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import generateRandomToken from '@b/utils/generateRandomToken';
-import { EmailDocument } from '@b/types/email.types';
+import mongoose, { Schema } from 'mongoose';
+import generateRandomToken from '../utils/generateRandomToken';
+import { EmailDocument } from '../types/email.types';
 
 const emailSchema = new Schema<EmailDocument>({
     userId: {
@@ -24,8 +24,7 @@ const emailSchema = new Schema<EmailDocument>({
         default: () => Date.now() + (1000 * 60 *60 * 24) // valid for 1d
     },
     deletionDate: {
-        type: Date,
-        default: () => Date.now() + (1000 * 60 * 60 * 24) // valid for 1d
+        type: Date
     }
 }, { timestamps: true });
 

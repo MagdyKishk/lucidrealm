@@ -1,17 +1,17 @@
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { Response, Request } from 'express'
-import { User } from '@b/models'
-import Logger from '@b/utils/logger';
+import { User } from '../../models'
+import Logger from '../../utils/logger';
 
 export default async (req: Request, res: Response) => {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1]
+    const { token } = req.cookies;
 
     if (!token) {
         res.status(401).json({
             success: false,
             message: "Authentication required. Please provide a valid token"
         })
+        Logger.warn("Empty token provided")
         return
     }
 
@@ -48,13 +48,12 @@ export default async (req: Request, res: Response) => {
         })
         Logger.info(`User is authenticated for token: ${token.substring(0, 10)}...`)
 
-    } catch (error: unknown) {
+    } catch (error) {
         Logger.error('Auth check error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         res.status(500).json({
             success: false,
             message: "Failed to process authentication request",
-            error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+            error: process.env.NODE_ENV === 'development' ? error : undefined
         });
     }
 

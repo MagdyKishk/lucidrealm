@@ -1,9 +1,9 @@
 import { Response } from "express"
-import { AuthedRequest } from '@b/types/auth.types'
-import { Email } from '@b/models';
-import generateRandomToken from '@b/utils/generateRandomToken';
-import Logger from '@b/utils/logger';
-import { regexConfig } from "@b/config";
+import { AuthedRequest } from '../../types/auth.types'
+import { Email } from '../../models';
+import generateRandomToken from '../../utils/generateRandomToken';
+import Logger from '../../utils/logger';
+import { regexConfig } from '../../config';
 
 export default async (req: AuthedRequest, res: Response) => {
     const currentUser = req.user;

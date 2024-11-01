@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { Email, Password, User } from '@b/models';
+import { Email, Password, User } from '../../models';
 import bcryptjs from "bcryptjs";
-import AuthService from '@b/services/auth';
-import Logger from '@b/utils/logger';
-import { regexConfig } from '@b/config';
+import { regexConfig } from '../../config';
+import Logger from '../../utils/logger';
+import AuthService from '../../services/auth';
 
 // Validation function for chaining
 const validateRequest = (email: string, password: string) => {
@@ -79,6 +79,9 @@ export default async (req: Request, res: Response) => {
         if (isCurrentPassword) {
             // Generate JWT token and send success response
             const token = AuthService.signUser(targetUser.toObject());
+
+            // Set cookie
+            AuthService.setCookie(res, token);
             
             res.status(200).json({
                 success: true,

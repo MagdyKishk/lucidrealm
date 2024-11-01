@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import AuthService from '@b/services/auth';
-import { Email } from '@b/models';
-import Logger from '@b/utils/logger';
-import { regexConfig } from '@b/config';
+import AuthService from '../../services/auth';
+import { Email } from '../../models';
+import Logger from '../../utils/logger';
+import { regexConfig } from '../../config';
 
 // Validation function for chaining
 const validateSignupRequest = (firstName: string, lastName: string, email: string, password: string) => {
@@ -54,6 +54,9 @@ export default async (req: Request, res: Response) => {
 
         // Generate JWT token
         const token = AuthService.signUser(newUser)
+
+        // Set cookie
+        AuthService.setCookie(res, token);
 
         // Successful signup response
         res.status(201).json({

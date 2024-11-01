@@ -1,6 +1,6 @@
-import dreamService from "@b/services/dream"
-import { AuthedRequest } from "@b/types/auth.types"
-import Logger from '@b/utils/logger'
+import dreamService from '../../services/dream'
+import { AuthedRequest } from '../../types/auth.types'
+import Logger from '../../utils/logger'
 import { Response } from "express"
 
 function validate(title: string, description: string, content: string) {

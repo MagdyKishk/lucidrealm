@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
-import { databaseConfig } from '@b/config'
-import Logger from '@b/utils/logger'
+import { databaseConfig } from '../config'
+import Logger from '../utils/logger'
 
 export default async () => {
     const { username, password, clusterUrl, name } = databaseConfig;

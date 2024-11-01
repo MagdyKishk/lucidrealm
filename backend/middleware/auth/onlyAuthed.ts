@@ -4,8 +4,7 @@ import jwt, { JwtPayload } from "jsonwebtoken"
 import { User } from '../../models'
 
 export default async (req: AuthedRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]
+    const { token } = req.cookies;
 
     if (!token) {
         res.status(403).json({

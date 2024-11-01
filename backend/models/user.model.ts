@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import { Password, Email } from '.';
-import { userTypes } from '@b/types';
+import { userTypes } from '../types';
 import Dream from './dream.mode';
 
 

@@ -1,7 +1,7 @@
 import { Response } from 'express';
-import { AuthedRequest } from '@b/types/auth.types';
-import { Email } from '@b/models';
-import Logger from '@b/utils/logger';
+import { AuthedRequest } from '../../types/auth.types';
+import { Email } from '../../models';
+import Logger from '../../utils/logger';
 
 export default async (req: AuthedRequest, res: Response) => {
     const { emailId } = req.body;

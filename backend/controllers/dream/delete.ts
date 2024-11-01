@@ -1,6 +1,6 @@
-import Dream from "@b/models/dream.mode";
-import { AuthedRequest } from "@b/types/auth.types";
-import Logger from "@b/utils/logger";
+import Dream from '../../models/dream.mode';
+import { AuthedRequest } from '../../types/auth.types';
+import Logger from '../../utils/logger';
 import { Response } from "express";
 import mongoose from "mongoose";
 

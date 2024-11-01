@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthedRequest } from '../../types/auth.types';
 import { Email } from '../../models';
-import { regexConfig } from '@b/config';
+import { regexConfig } from '../../config';
 
 // Strategy Pattern for Handling Email Addition Logic
 export default async (req: AuthedRequest, res: Response): Promise<void> => {

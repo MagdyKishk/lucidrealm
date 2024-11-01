@@ -1,6 +1,6 @@
 import express from 'express';
-import { onlyAuthed } from '@b/middleware/auth';
-import { emailController } from '@b/controllers';
+import { onlyAuthed } from '../middleware/auth';
+import { emailController } from '../controllers';
 
 const EmailRouter = express.Router();
 

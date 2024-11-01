@@ -1,21 +1,29 @@
-import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import express from "express";
 
-import { cookieParserConfig } from '@b/config';
-import db from '@b/database';
-import Logger from '@b/utils/logger';
+// Config
+import { cookieParserConfig, corsConfig } from './config';
+
+// Database
+import db from './database';
+
+// Logger
+import Logger from './utils/logger';
 
 // Routes
-import AuthRouter from '@b/routes/auth.route';
-import EmailRouter from '@b/routes/email.route';
+import AuthRouter from './routes/auth.route';
+import EmailRouter from './routes/email.route';
 
 // Cron
-import '@b/cron';
+import './cron';
 
 // Middleware
 import { requestLogger } from './middleware/logging';
 import DreamRouter from "./routes/dream.route";
+
+// Cors
+import cors from 'cors';
 
 // Load .env in process.env
 dotenv.config();
@@ -27,6 +35,7 @@ const app = express();
 // Global middlewares
 app.use(express.json())
 app.use(cookieParser(cookieParserConfig.secret)) // Read cookies in req.cookie / secureCookies
+app.use(cors(corsConfig))
 
 // Add this before your routes
 app.use(requestLogger);
