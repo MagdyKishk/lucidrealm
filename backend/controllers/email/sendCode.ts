@@ -3,6 +3,7 @@ import { AuthedRequest } from '@b/types/auth.types'
 import { Email } from '@b/models';
 import generateRandomToken from '@b/utils/generateRandomToken';
 import Logger from '@b/utils/logger';
+import { regexConfig } from "@b/config";
 
 export default async (req: AuthedRequest, res: Response) => {
     const currentUser = req.user;
@@ -17,7 +18,7 @@ export default async (req: AuthedRequest, res: Response) => {
         return;
     }
 
-    if (!/^[\p{L}\d._%+-]+@[\p{L}\d.-]+\.[\p{L}]{2,}$/u.test(email)) {
+    if (!regexConfig.email.test(email)) {
         res.status(422).json({
             success: false,
             message: "Email must be in a valid format (e.g., user@example.com).",

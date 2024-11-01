@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthedRequest } from '../../types/auth.types';
 import { Email } from '../../models';
+import { regexConfig } from '@b/config';
 
 // Strategy Pattern for Handling Email Addition Logic
 export default async (req: AuthedRequest, res: Response): Promise<void> => {
@@ -16,7 +17,7 @@ export default async (req: AuthedRequest, res: Response): Promise<void> => {
         return;
     }
 
-    if (!/^[\p{L}\d._%+-]+@[\p{L}\d.-]+\.[\p{L}]{2,}$/u.test(email)) {
+    if (!regexConfig.email.test(email)) {
         res.status(422).json({
             success: false,
             message: "Please provide a valid email address (e.g., user@example.com)",

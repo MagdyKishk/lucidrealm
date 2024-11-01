@@ -3,6 +3,7 @@ import { Email, Password, User } from '@b/models';
 import bcryptjs from "bcryptjs";
 import AuthService from '@b/services/auth';
 import Logger from '@b/utils/logger';
+import { regexConfig } from '@b/config';
 
 // Validation function for chaining
 const validateRequest = (email: string, password: string) => {
@@ -14,10 +15,10 @@ const validateRequest = (email: string, password: string) => {
     if (!password) {
         errors.push("Missing required password data.");
     }
-    if (!/^[\p{L}\d._%+-]+@[\p{L}\d.-]+\.[\p{L}]{2,}$/u.test(email)) {
+    if (!regexConfig.email.test(email)) {
         errors.push("Email must be in a valid format (e.g., user@example.com).");
     }
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.\-+%])[A-Za-z\d.\-+%]{8,}$/.test(password)) {
+    if (!regexConfig.password.test(password)) {
         errors.push("Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (., -, +, or %).");
     }
 

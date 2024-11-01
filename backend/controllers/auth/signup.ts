@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import AuthService from '@b/services/auth';
 import { Email } from '@b/models';
 import Logger from '@b/utils/logger';
+import { regexConfig } from '@b/config';
 
 // Validation function for chaining
 const validateSignupRequest = (firstName: string, lastName: string, email: string, password: string) => {
@@ -12,9 +13,9 @@ const validateSignupRequest = (firstName: string, lastName: string, email: strin
     } else {
         if (firstName.length < 2 || lastName.length < 2)
             errors.push("First name and last name must be at least 2 characters long.");
-        if (!/^[\p{L}\d._%+-]+@[\p{L}\d.-]+\.[\p{L}]{2,}$/u.test(email))
+        if (!regexConfig.email.test(email))
             errors.push("Please provide a valid email address (e.g., user@example.com).");
-        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.\-+%])[A-Za-z\d.\-+%]{8,}$/.test(password))
+        if (!regexConfig.password.test(password))
             errors.push("Password must be at least 8 characters long and include: one lowercase letter, one uppercase letter, one number, and one special character (., -, +, or %).");
     }
     return errors;
