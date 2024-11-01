@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import AuthService from '../../services/auth';
-import { Email, Password, User } from '../../models';
+import { Email, Password, User } from '@b/models';
 import bcryptjs from "bcryptjs";
-import signUser from '../../services/auth/signUser';
+import AuthService from '@b/services/auth';
+import Logger from '@b/utils/logger';
 
 // Validation function for chaining
 const validateRequest = (email: string, password: string) => {
@@ -26,6 +26,7 @@ const validateRequest = (email: string, password: string) => {
 
 export default async (req: Request, res: Response) => {
     const { email, password } = req.body;
+    Logger.info(`Processing login attempt for email: ${email}`);
 
     // Run validations
     const errors = validateRequest(email, password);
@@ -38,9 +39,11 @@ export default async (req: Request, res: Response) => {
         // Check if email exists
         const existingEmail = await Email.findOne({ address: email });
         if (!existingEmail) {
-            res.status(404).json({
+            Logger.warn(`Login failed: Email not found - ${email}`);
+            res.status(401).json({
                 success: false,
-                message: "Invalid email or password.",
+                message: "Invalid email or password",
+                code: 'INVALID_CREDENTIALS'
             });
             return;
         }
@@ -48,9 +51,10 @@ export default async (req: Request, res: Response) => {
         // Fetch the user and validate the existence
         const targetUser = await User.findById(existingEmail.userId);
         if (!targetUser) {
-            res.status(404).json({
+            res.status(401).json({
                 success: false,
-                message: "Invalid email or password.",
+                message: "Invalid email or password",
+                code: 'INVALID_CREDENTIALS'
             });
             return;
         }
@@ -58,9 +62,10 @@ export default async (req: Request, res: Response) => {
         // Get the user's current password and verify it
         const targetPassword = await Password.findById(targetUser.passwords.current);
         if (!targetPassword) {
-            res.status(404).json({
+            res.status(401).json({
                 success: false,
-                message: "Invalid email or password.",
+                message: "Invalid email or password",
+                code: 'INVALID_CREDENTIALS'
             });
             return;
         }
@@ -68,15 +73,16 @@ export default async (req: Request, res: Response) => {
         // Vlidate the password
         const isValidPassword = await bcryptjs.compare(password, targetPassword.hash);
         if (!isValidPassword) {
-            res.status(404).json({
+            res.status(401).json({
                 success: false,
-                message: "Invalid email or password.",
+                message: "Invalid email or password",
+                code: 'INVALID_CREDENTIALS'
             });
             return;
         }
 
         // Generate JWT token
-        const token = signUser(targetUser.toObject())
+        const token = AuthService.signUser(targetUser.toObject())
 
         // Successful login response
         res.status(200).json({
@@ -89,11 +95,15 @@ export default async (req: Request, res: Response) => {
             },
             token
         });
-    } catch (error: any) {
+
+        Logger.info(`User successfully logged in: ${email}`);
+    } catch (error: unknown) {
+        Logger.error('Login error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         res.status(500).json({
             success: false,
-            message: "Internal Server Error",
-            error: error.message
+            message: "Failed to process login request",
+            error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
         });
     }
 };

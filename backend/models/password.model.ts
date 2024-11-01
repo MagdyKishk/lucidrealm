@@ -1,11 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
+import { PasswordDocument } from '@b/types/password.types';
 
-interface PasswordDocument extends Document {
-    _id: mongoose.Types.ObjectId;
-    userId?: mongoose.Types.ObjectId;
-    hash: string;
-    createdAt: Date;
-}
 
 const passwordSchema = new Schema<PasswordDocument>({
     userId: {
@@ -19,5 +14,6 @@ const passwordSchema = new Schema<PasswordDocument>({
 }, { timestamps: true });
 
 const Password = mongoose.model<PasswordDocument>('Password', passwordSchema);
+
 export default Password;
-export { PasswordDocument, passwordSchema };
+export { passwordSchema };

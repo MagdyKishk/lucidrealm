@@ -1,19 +1,18 @@
 import mongoose from 'mongoose'
-import { databaseConfig } from '../config'
+import { databaseConfig } from '@b/config'
+import Logger from '@b/utils/logger'
 
 export default async () => {
-    const username = databaseConfig.username;
-    const password = databaseConfig.password;
-    const clusterUrl = databaseConfig.clusterUrl;
-    const name = databaseConfig.name;
+    const { username, password, clusterUrl, name } = databaseConfig;
 
-    console.log("Trying to connect to mongoodb ...")
+    Logger.info("Trying to connect to MongoDB...")
 
     try {
-        await mongoose.connect(`mongodb+srv://${username}:${password}@${clusterUrl}/${name}?retryWrites=true&w=majority&appName=Cluster0`)
-        console.log("Connected to mongoodb sccessfuly")
+        const uri = `mongodb+srv://${username}:${password}@${clusterUrl}/${name}?retryWrites=true&w=majority&appName=Cluster0`;
+        await mongoose.connect(uri)
+        Logger.info("Connected to MongoDB successfully")
     } catch (e) {
-        console.log("Error while trying to connect to mongoodb")
-        console.error(e)
+        Logger.error("Error while trying to connect to MongoDB:", e)
+        process.exit(1)  // Exit if database connection fails
     }
 }

@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { Password, Email } from '.';
-import { userTypes } from '../types';
+import { userTypes } from '@b/types';
 
 
 const userSchema = new Schema<userTypes.UserDocument>({

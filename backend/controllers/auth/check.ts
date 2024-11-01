@@ -1,41 +1,42 @@
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { Response, Request } from 'express'
-import { User } from '../../models'
+import { User } from '@b/models'
+import Logger from '@b/utils/logger';
 
 export default async (req: Request, res: Response) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1]
 
-    if (!token) { // Check
-        res.status(403).json({
+    if (!token) {
+        res.status(401).json({
             success: false,
-            message: "Unaothorized: Missing auth token"
+            message: "Authentication required. Please provide a valid token"
         })
         return
     }
 
     try {
-        // Decode JWT token
+        Logger.info(`Processing auth check for token: ${token.substring(0, 10)}...`);
         const decoded = jwt.decode(token) as JwtPayload
-        if (decoded == null) { // Check if Token is valid
-            res.status(403).json({
+        if (decoded == null) {
+            res.status(401).json({
                 success: false,
-                message: "Unaothorized: Invalid or expired token"
+                message: "Invalid authentication token"
             })
+            Logger.error(`Invalid authentication token for token: ${token.substring(0, 10)}...`)
             return
         }
 
-        // Check if user exist
         const targetUser = await User.findById(decoded.id)
         if (!targetUser) {
-            res.status(403).json({
+            res.status(404).json({
                 success: false,
-                message: "Unaothorized: Invalid or expired token"
+                message: "User account not found"
             })
+            Logger.error(`User account not found for token: ${token.substring(0, 10)}...`)
             return
         }
 
-        // Return Response
         res.status(200).json({
             success: true,
             message: "User is Authanticated",
@@ -45,13 +46,16 @@ export default async (req: Request, res: Response) => {
                 emails: undefined
             }
         })
+        Logger.info(`User is authenticated for token: ${token.substring(0, 10)}...`)
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+        Logger.error('Auth check error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         res.status(500).json({
             success: false,
-            message: "Internal Server Error",
-            error: error.message
-        })
+            message: "Failed to process authentication request",
+            error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+        });
     }
 
 }

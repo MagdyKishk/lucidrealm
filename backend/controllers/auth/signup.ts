@@ -1,32 +1,37 @@
 import { Request, Response } from 'express';
-import AuthService from '../../services/auth';
-import { Email } from '../../models';
-import signUser from '../../services/auth/signUser';
+import AuthService from '@b/services/auth';
+import { Email } from '@b/models';
+import Logger from '@b/utils/logger';
 
 // Validation function for chaining
 const validateSignupRequest = (firstName: string, lastName: string, email: string, password: string) => {
     const errors: string[] = [];
 
     if (!firstName || !lastName || !email || !password) {
-        errors.push("Missing required data: first name, last name, email, and password are all required.");
+        errors.push("Please provide all required fields: first name, last name, email, and password.");
     } else {
         if (firstName.length < 2 || lastName.length < 2)
-            errors.push("First name and last name must be at least 2 characters")
+            errors.push("First name and last name must be at least 2 characters long.");
         if (!/^[\p{L}\d._%+-]+@[\p{L}\d.-]+\.[\p{L}]{2,}$/u.test(email))
-            errors.push("Email must be in a valid format (e.g., user@example.com).");
+            errors.push("Please provide a valid email address (e.g., user@example.com).");
         if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.\-+%])[A-Za-z\d.\-+%]{8,}$/.test(password))
-            errors.push("Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (., -, +, or %).");
+            errors.push("Password must be at least 8 characters long and include: one lowercase letter, one uppercase letter, one number, and one special character (., -, +, or %).");
     }
     return errors;
 };
 
 export default async (req: Request, res: Response) => {
     const { firstName, lastName, email, password } = req.body;
+    Logger.info(`Processing signup request for email: ${email}`);
 
     // Run validations
     const errors = validateSignupRequest(firstName, lastName, email, password);
     if (errors.length > 0) {
-        res.status(400).json({ success: false, message: errors.join(" ") });
+        res.status(422).json({
+            success: false,
+            message: "Validation failed",
+            errors: errors
+        });
         return;
     }
 
@@ -34,9 +39,11 @@ export default async (req: Request, res: Response) => {
         // Check if the email already exists
         const existingEmail = await Email.findOne({ address: email });
         if (existingEmail) {
+            Logger.warn(`Signup failed: Email already exists - ${email}`);
             res.status(409).json({
                 success: false,
-                message: "Email already exists.",
+                message: "An account with this email address already exists.",
+                code: 'EMAIL_EXISTS'
             });
             return;
         }
@@ -45,7 +52,7 @@ export default async (req: Request, res: Response) => {
         const newUser = await AuthService.signup(firstName, lastName, email, password);
 
         // Generate JWT token
-        const token = signUser(newUser)
+        const token = AuthService.signUser(newUser)
 
         // Successful signup response
         res.status(201).json({
@@ -58,11 +65,13 @@ export default async (req: Request, res: Response) => {
             },
             token
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
+        Logger.error('Signup error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         res.status(500).json({
             success: false,
-            message: "Internal Server Error",
-            error: error.message,
+            message: "Failed to create user account",
+            error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
         });
     }
 };

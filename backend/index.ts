@@ -2,12 +2,13 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
-import { cookieParserConfig } from './config';
-import db from './database';
+import { cookieParserConfig } from '@b/config';
+import db from '@b/database';
+import Logger from '@b/utils/logger';
 
 // Routes
-import AuthRouter from './routes/auth.route';
-import EmailRouter from './routes/email.route';
+import AuthRouter from '@b/routes/auth.route';
+import EmailRouter from '@b/routes/email.route';
 
 // Load .env in process.env
 dotenv.config();
@@ -28,5 +29,5 @@ db.connect();
 // Listening
 const SERVER_PORT = process.env.SERVER_PORT
 app.listen(SERVER_PORT, () => {
-  console.log(`Listening on port: ${SERVER_PORT}`)
+  Logger.info(`Listening on port: ${SERVER_PORT}`)
 })

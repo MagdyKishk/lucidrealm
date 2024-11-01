@@ -1,15 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import generateRandomToken from '../utils/generateRandomToken';
-
-interface EmailDocument extends Document {
-    _id: mongoose.Types.ObjectId;
-    userId?: mongoose.Types.ObjectId;
-    address: string;
-    createdAt: Date;
-    isValid: boolean;
-    verifyCode?: string;
-    verifyExpire?: Date;
-}
+import generateRandomToken from '@b/utils/generateRandomToken';
+import { EmailDocument } from '@b/types/email.types';
 
 const emailSchema = new Schema<EmailDocument>({
     userId: {
@@ -35,5 +26,6 @@ const emailSchema = new Schema<EmailDocument>({
 }, { timestamps: true });
 
 const Email = mongoose.model<EmailDocument>('Email', emailSchema);
+
 export default Email;
-export { EmailDocument, emailSchema };
+export { emailSchema };

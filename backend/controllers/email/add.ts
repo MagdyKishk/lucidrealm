@@ -10,7 +10,8 @@ export default async (req: AuthedRequest, res: Response): Promise<void> => {
     if (!email) {
         res.status(422).json({
             success: false,
-            message: "Missing required data: email.",
+            message: "Please provide an email address",
+            code: 'MISSING_EMAIL'
         });
         return;
     }
@@ -18,7 +19,8 @@ export default async (req: AuthedRequest, res: Response): Promise<void> => {
     if (!/^[\p{L}\d._%+-]+@[\p{L}\d.-]+\.[\p{L}]{2,}$/u.test(email)) {
         res.status(422).json({
             success: false,
-            message: "Email must be in a valid format (e.g., user@example.com).",
+            message: "Please provide a valid email address (e.g., user@example.com)",
+            code: 'INVALID_EMAIL_FORMAT'
         });
         return;
     }
@@ -26,18 +28,19 @@ export default async (req: AuthedRequest, res: Response): Promise<void> => {
     if (currentUser.emails.length >= 5) {
         res.status(403).json({
             success: false,
-            message: "You cannot have more than 5 emails attached to your account.",
+            message: "You have reached the maximum limit of 5 email addresses per account",
+            code: 'EMAIL_LIMIT_REACHED'
         });
         return;
     }
 
     try {
-        // Check if the email already exists
         const existingEmail = await Email.findOne({ address: email });
         if (existingEmail) {
             res.status(409).json({
                 success: false,
-                message: "Email already exists.",
+                message: "This email address is already registered",
+                code: 'EMAIL_EXISTS'
             });
             return;
         }
@@ -56,21 +59,15 @@ export default async (req: AuthedRequest, res: Response): Promise<void> => {
 
         res.status(201).json({
             success: true,
-            message: "Email successfully added to your account.",
+            message: "Email address successfully added to your account",
         });
-    } catch (error: any) {
-        if (error.name === 'ValidationError') {
-            res.status(400).json({
-                success: false,
-                message: "Invalid data provided.",
-                error: error.message,
-            });
-        } else {
-            res.status(500).json({
-                success: false,
-                message: "Internal Server Error",
-                error: error.message,
-            });
-        }
+    } catch (error: unknown) {
+        console.error('Add email error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        res.status(500).json({
+            success: false,
+            message: "Failed to add email address",
+            error: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+        });
     }
 };
