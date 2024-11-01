@@ -13,6 +13,10 @@ import EmailRouter from '@b/routes/email.route';
 // Cron
 import '@b/cron';
 
+// Middleware
+import { requestLogger } from './middleware/logging';
+import DreamRouter from "./routes/dream.route";
+
 // Load .env in process.env
 dotenv.config();
 
@@ -24,8 +28,12 @@ const app = express();
 app.use(express.json())
 app.use(cookieParser(cookieParserConfig.secret)) // Read cookies in req.cookie / secureCookies
 
+// Add this before your routes
+app.use(requestLogger);
+
 app.use("/api/auth", AuthRouter)
 app.use("/api/email", EmailRouter)
+app.use("/api/dream", DreamRouter)
 
 // Database
 db.connect();

@@ -20,6 +20,11 @@ const userSchema = new Schema<userTypes.UserDocument>({
         required: true,
         max: 5,
     },
+    dreams: {
+        type: [Schema.Types.ObjectId],
+        ref: "Dream",
+        required: true,
+    },
     passwords: {
         type: {
             history: {

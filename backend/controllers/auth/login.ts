@@ -26,12 +26,13 @@ const validateRequest = (email: string, password: string) => {
 
 export default async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    Logger.info(`Processing login attempt for email: ${email}`);
+    Logger.user(`Login attempt for email: ${email}`);
 
     // Run validations
     const errors = validateRequest(email, password);
     if (errors.length > 0) {
-        res.status(422).json({ success: false, message: errors.join(" ") });
+        Logger.warn(`Login validation failed for email: ${email}`);
+        res.status(422).json({ success: false, message: errors.join(" "), code: 'INVALID_REQUEST' });
         return;
     }
 

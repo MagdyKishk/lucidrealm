@@ -10,6 +10,7 @@ interface UserDocument extends Document {
         current: mongoose.Types.ObjectId;
     };
     createdAt: Date;
+    dreams: mongoose.Types.ObjectId[];
 }
 
 interface UserModel extends mongoose.Model<UserDocument> { }

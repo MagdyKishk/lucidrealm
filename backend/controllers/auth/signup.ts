@@ -22,11 +22,12 @@ const validateSignupRequest = (firstName: string, lastName: string, email: strin
 
 export default async (req: Request, res: Response) => {
     const { firstName, lastName, email, password } = req.body;
-    Logger.info(`Processing signup request for email: ${email}`);
+    Logger.user(`New signup request for: ${email}`);
 
     // Run validations
     const errors = validateSignupRequest(firstName, lastName, email, password);
     if (errors.length > 0) {
+        Logger.warn(`Signup validation failed for email: ${email}`);
         res.status(422).json({
             success: false,
             message: "Validation failed",
