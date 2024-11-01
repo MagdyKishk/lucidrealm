@@ -10,8 +10,12 @@ import Logger from '@b/utils/logger';
 import AuthRouter from '@b/routes/auth.route';
 import EmailRouter from '@b/routes/email.route';
 
+// Cron
+import '@b/cron';
+
 // Load .env in process.env
 dotenv.config();
+
 
 // Initiate express
 const app = express();

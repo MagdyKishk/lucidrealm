@@ -8,6 +8,7 @@ interface EmailDocument extends Document {
     isValid: boolean;
     verifyCode?: string;
     verifyExpire?: Date;
+    deletionDate?: Date;
 }
 
 export { EmailDocument };

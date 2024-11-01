@@ -22,6 +22,10 @@ const emailSchema = new Schema<EmailDocument>({
     verifyExpire: {
         type: Date,
         default: () => Date.now() + (1000 * 60 *60 * 24) // valid for 1d
+    },
+    deletionDate: {
+        type: Date,
+        default: () => Date.now() + (1000 * 60 * 60 * 24) // valid for 1d
     }
 }, { timestamps: true });
 

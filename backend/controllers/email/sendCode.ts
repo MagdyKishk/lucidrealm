@@ -28,7 +28,7 @@ export default async (req: AuthedRequest, res: Response) => {
 
     try {
         const targetEmail = await Email.findOne({
-            _id: { $in: currentUser.emails },
+            userId: currentUser._id,
             address: email
         });
 
